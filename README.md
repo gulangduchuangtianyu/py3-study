@@ -1,2 +1,2 @@
-# py3-spider-study
-use python3 for stydiny spider
+# py3-study
+use python3 for studing spider
