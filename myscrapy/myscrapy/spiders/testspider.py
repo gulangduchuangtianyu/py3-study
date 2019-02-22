@@ -7,6 +7,15 @@ class TestspiderSpider(scrapy.Spider):
     allowed_domains = ['www.liuzaichun.cn']
     start_urls = ['http://www.liuzaichun.cn']
     
+    # 重写start_requests() 方法 不再调用 star_urls  
+    def start_requests(self):
+    	# 由于不能在抓取的页面DOM中获取到下一页的链接，所以只能重写此方法拼接分页链接，循环请求每一页，并抓取之
+    	for  p in range(1,5):
+    		print('爬取第：'+str(p))
+    		next_url = "http://www.liuzaichun.cn/?p="+str(p)
+
+    		yield scrapy.Request(next_url , callback=self.parse)
+
 
     ### 爬虫数据抓取的核心部分
     def parse(self, response):
@@ -42,13 +51,3 @@ class TestspiderSpider(scrapy.Spider):
     		fields['article_createtime']  = ''.join(t).split()[0]
     		
     		yield fields
-
-    	next_url = response.css('li.next_page')
-    	
-    	for  p in range(2,5):
-    		next_url = "http://www.liuzaichun.cn/?p="+str(p)
-
-    		yield scrapy.Request(next_url , callback=self.parse)
-
-    	# print(next_url)
-    		
