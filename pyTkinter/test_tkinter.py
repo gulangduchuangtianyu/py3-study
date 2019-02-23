@@ -1,16 +1,40 @@
 import tkinter as tk
 from tkinter import messagebox
-
+import requests
 win = tk.Tk()   #创建主窗口容器
 
 win.title("测试win") #设置窗口名称
 
 '''窗体几何大小'''
-win.geometry("500x150")
+win.geometry("500x200")
 
 '''下载事件'''
-def dowload(*args):
-	messagebox._show("提示","哈哈 你点对了")
+def startDownLoad(*args):
+	videoV = videoAddr.get().strip()
+	saveV = saveAddr.get().strip()
+	r = requests.get(videoV, stream=True)
+	totle = int(r.headers['content-length']) #下载的总内容大小
+	csize = 0
+	percent = 0
+	if videoV =='':
+		videoV = '视频地址不能为空'
+		messagebox._show("提示",videoV)
+		return
+	elif saveV =='':
+		saveV = '保存路径不能为空'
+		messagebox._show("提示",saveV)
+		return 
+	with open('./videos/test.mp4', "wb") as mp4:
+		for chunk in r.iter_content(chunk_size=1024): #每次获取视频字节大小
+			if chunk:
+				mp4.write(chunk)
+			csize +=1024
+			percent = round(csize / totle*100,2) #计算百分比，保留两位小数
+
+			if csize==totle:
+				print("下载进度：%s" %(str(100)+"%"),end="")
+			else :
+				print("下载进度：%s" %(str(percent)+"%"),end='\r')  #不换行实时刷新显示
 
 '''   grid布局方式   '''
 
@@ -48,13 +72,13 @@ videoAddr = tk.Entry(win,width=50) #创建地址输入框
 videoAddr.grid(row=1,column=1)
 
 tk.Label(win,text="保存地址：",fg="green",font=("宋体",13)).grid(row=2,pady=8)
-saveAddr = tk.Entry(win,width=40) #创建地址输入框
+saveAddr = tk.Entry(win,width=40,text='') #创建地址输入框
 
 saveAddr.grid(row=2,column=1,sticky=tk.W) #sticky可以选择的值有：N/S/W/E，分别代表上对齐/下对齐/左对齐/右对齐，
 
 tk.Button(win,text="选择文件",fg="black").grid(row=2,column=1,sticky=tk.E)
-
-tk.Button(win,text="下载",fg="black",width=8,).grid(row=3,column=1,pady=3,sticky=tk.S)
+process = tk.Label(win,text="下载进度:",fg="red",font=("宋体",13)).grid(row=3,pady=8)
+tk.Button(win,text="下载",fg="black",width=8,command=startDownLoad).grid(row=4,column=1,pady=3,sticky=tk.S)
 
 ''' 进入消息循环'''
 win.mainloop()  #显示窗口

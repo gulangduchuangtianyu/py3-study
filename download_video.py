@@ -1,14 +1,28 @@
 import requests
 import os,sys
+import random  #生成随机字符串
+import re 
 # print(requests)
 print("开始下载")
-url = 'https://pic.ibaotu.com/00/51/34/88a888piCbRB.mp4'
+url = 'http://198.255.82.90//mp43/304122.mp4?st=AeKa-qtzqgYe143fQYFa3w&e=1550975560'
 
+'''
+   request = requests.get('http://www.baidu.com')
+print('type(request)', type(request))  #响应类型
+print('request.status_code', request.status_code) #状态码
+print('request.encoding', request.encoding)  #字符集编码
+print('request.cookies', request.cookies)   #cookie信息
+print('request.text', request.text)         # 获取HTML内容
+
+'''
 r = requests.get(url, stream=True)
 totle = int(r.headers['content-length']) #下载的总内容大小
 csize = 0
 percent = 0
-with open('./videos/test.mp4', "wb") as mp4:
+pattern = re.compile(r'[:|.|/]')
+random_str    = re.sub(pattern,'',url) #正则替换
+video_name = ''.join(random.sample(random_str,10))+".mp4"
+with open('./videos/'+video_name, "wb") as mp4:
     for chunk in r.iter_content(chunk_size=1024): #每次获取视频字节大小
     	
         if chunk:
